@@ -67,11 +67,13 @@ export default function CartPage() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <>
+      <div className="card empty-state">
         <h1>Carrinho</h1>
         <p data-testid="empty-cart">Seu carrinho está vazio.</p>
-        <Link href="/">Ver produtos</Link>
-      </>
+        <Link href="/" className="button">
+          Ver produtos
+        </Link>
+      </div>
     );
   }
 
@@ -81,65 +83,72 @@ export default function CartPage() {
     <>
       <h1>Carrinho</h1>
 
-      {error && (
-        <p className="alert error" data-testid="cart-error">
-          {error}
-        </p>
-      )}
+      <div className="two-columns">
+        <div className="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Preço</th>
+                <th>Qtd.</th>
+                <th>Total</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {cart.items.map((item) => (
+                <tr key={item.productId} data-testid={`cart-item-${item.slug}`}>
+                  <td>{item.name}</td>
+                  <td>{formatBRL(item.unitPriceCents)}</td>
+                  <td>
+                    <input
+                      className="qty-input"
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      aria-label="Quantidade"
+                      onChange={(e) => {
+                        const quantity = Number(e.target.value);
+                        if (quantity >= 1) changeQuantity(item.productId, quantity);
+                      }}
+                    />
+                  </td>
+                  <td data-testid="line-total">{formatBRL(item.unitPriceCents * item.quantity)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() => removeItem(item.productId)}
+                    >
+                      Remover
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Preço</th>
-            <th>Qtd.</th>
-            <th>Total</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {cart.items.map((item) => (
-            <tr key={item.productId} data-testid={`cart-item-${item.slug}`}>
-              <td>{item.name}</td>
-              <td>{formatBRL(item.unitPriceCents)}</td>
-              <td>
-                <input
-                  className="qty-input"
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  aria-label="Quantidade"
-                  onChange={(e) => {
-                    const quantity = Number(e.target.value);
-                    if (quantity >= 1) changeQuantity(item.productId, quantity);
-                  }}
-                />
-              </td>
-              <td data-testid="line-total">{formatBRL(item.unitPriceCents * item.quantity)}</td>
-              <td>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => removeItem(item.productId)}
-                >
-                  Remover
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="totals">
-        <div className="row grand">
-          <span>Subtotal</span>
-          <span data-testid="cart-subtotal">{formatBRL(subtotal)}</span>
+          {error && (
+            <p className="alert error" data-testid="cart-error">
+              {error}
+            </p>
+          )}
         </div>
-      </div>
 
-      <Link href="/checkout" className="button">
-        Finalizar compra
-      </Link>
+        <aside className="card summary-card">
+          <h2>Resumo</h2>
+          <div className="totals">
+            <div className="row grand">
+              <span>Subtotal</span>
+              <span data-testid="cart-subtotal">{formatBRL(subtotal)}</span>
+            </div>
+          </div>
+          <p className="muted">Frete e cupons são calculados no checkout.</p>
+          <Link href="/checkout" className="button block">
+            Finalizar compra
+          </Link>
+        </aside>
+      </div>
     </>
   );
 }

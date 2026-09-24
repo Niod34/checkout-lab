@@ -98,11 +98,13 @@ export default function CheckoutPage() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <>
+      <div className="card empty-state">
         <h1>Checkout</h1>
         <p data-testid="empty-cart">Seu carrinho está vazio.</p>
-        <Link href="/">Ver produtos</Link>
-      </>
+        <Link href="/" className="button">
+          Ver produtos
+        </Link>
+      </div>
     );
   }
 
@@ -110,86 +112,125 @@ export default function CheckoutPage() {
     <>
       <h1>Checkout</h1>
 
-      <div className="row-inline">
-        <div className="field">
-          <label htmlFor="cep">CEP</label>
-          <input id="cep" value={form.cep} onChange={(e) => update('cep', e.target.value)} />
+      <div className="two-columns">
+        <div className="stack">
+          <section className="card">
+            <h2>Entrega</h2>
+            <div className="row-inline">
+              <div className="field">
+                <label htmlFor="cep">CEP</label>
+                <input
+                  id="cep"
+                  placeholder="00000-000"
+                  value={form.cep}
+                  onChange={(e) => update('cep', e.target.value)}
+                />
+              </div>
+              <button type="button" className="outline" onClick={calculate}>
+                Calcular frete
+              </button>
+            </div>
+            {quoteError && (
+              <p className="alert error" data-testid="quote-error">
+                {quoteError}
+              </p>
+            )}
+          </section>
+
+          <section className="card">
+            <h2>Cupom de desconto</h2>
+            <div className="row-inline">
+              <div className="field">
+                <label htmlFor="coupon">Cupom</label>
+                <input
+                  id="coupon"
+                  value={form.coupon}
+                  onChange={(e) => update('coupon', e.target.value)}
+                />
+              </div>
+              <button type="button" className="outline" onClick={calculate}>
+                Aplicar cupom
+              </button>
+            </div>
+            {quote?.appliedCoupon && (
+              <p className="alert success" data-testid="coupon-applied">
+                Cupom {quote.appliedCoupon} aplicado.
+              </p>
+            )}
+            {quote?.couponRejection && (
+              <p className="alert error" data-testid="coupon-rejected">
+                {quote.couponRejection.message}
+              </p>
+            )}
+          </section>
+
+          <section className="card">
+            <h2>Seus dados</h2>
+            <div className="field">
+              <label htmlFor="name">Nome completo</label>
+              <input id="name" value={form.name} onChange={(e) => update('name', e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
+              />
+            </div>
+          </section>
         </div>
-        <button type="button" onClick={calculate}>
-          Calcular frete
-        </button>
+
+        <aside className="card summary-card">
+          <h2>Resumo do pedido</h2>
+
+          {cart.items.map((item) => (
+            <div key={item.productId} className="totals">
+              <div className="row">
+                <span>
+                  {item.quantity}x {item.name}
+                </span>
+                <span>{formatBRL(item.unitPriceCents * item.quantity)}</span>
+              </div>
+            </div>
+          ))}
+
+          {quote ? (
+            <div className="totals" data-testid="summary">
+              <hr className="divider" />
+              <div className="row">
+                <span>Subtotal</span>
+                <span data-testid="subtotal">{formatBRL(quote.subtotalCents)}</span>
+              </div>
+              <div className="row">
+                <span>Desconto</span>
+                <span data-testid="discount">- {formatBRL(quote.discountCents)}</span>
+              </div>
+              <div className="row">
+                <span>Frete {quote.freeShipping && <span className="tag">grátis</span>}</span>
+                <span data-testid="shipping">{formatBRL(quote.shippingCents)}</span>
+              </div>
+              <div className="row grand">
+                <span>Total</span>
+                <span data-testid="total">{formatBRL(quote.totalCents)}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="muted">Informe o CEP para calcular o frete.</p>
+          )}
+
+          {orderError && (
+            <p className="alert error" data-testid="order-error">
+              {orderError}
+            </p>
+          )}
+
+          <button type="button" className="block" onClick={placeOrder} disabled={submitting}>
+            Finalizar pedido
+          </button>
+        </aside>
       </div>
-
-      <div className="row-inline">
-        <div className="field">
-          <label htmlFor="coupon">Cupom</label>
-          <input
-            id="coupon"
-            value={form.coupon}
-            onChange={(e) => update('coupon', e.target.value)}
-          />
-        </div>
-        <button type="button" onClick={calculate}>
-          Aplicar cupom
-        </button>
-      </div>
-
-      {quote?.appliedCoupon && (
-        <p className="alert success" data-testid="coupon-applied">
-          Cupom {quote.appliedCoupon} aplicado.
-        </p>
-      )}
-      {quote?.couponRejection && (
-        <p className="alert error" data-testid="coupon-rejected">
-          {quote.couponRejection.message}
-        </p>
-      )}
-      {quoteError && (
-        <p className="alert error" data-testid="quote-error">
-          {quoteError}
-        </p>
-      )}
-
-      {quote && (
-        <div className="totals" data-testid="summary">
-          <div className="row">
-            <span>Subtotal</span>
-            <span data-testid="subtotal">{formatBRL(quote.subtotalCents)}</span>
-          </div>
-          <div className="row">
-            <span>Desconto</span>
-            <span data-testid="discount">- {formatBRL(quote.discountCents)}</span>
-          </div>
-          <div className="row">
-            <span>Frete {quote.freeShipping && <span className="tag">grátis</span>}</span>
-            <span data-testid="shipping">{formatBRL(quote.shippingCents)}</span>
-          </div>
-          <div className="row grand">
-            <span>Total</span>
-            <span data-testid="total">{formatBRL(quote.totalCents)}</span>
-          </div>
-        </div>
-      )}
-
-      <h2>Seus dados</h2>
-      <div className="field">
-        <label htmlFor="name">Nome completo</label>
-        <input id="name" value={form.name} onChange={(e) => update('name', e.target.value)} />
-      </div>
-      <div className="field">
-        <label htmlFor="email">E-mail</label>
-        <input id="email" value={form.email} onChange={(e) => update('email', e.target.value)} />
-      </div>
-
-      {orderError && (
-        <p className="alert error" data-testid="order-error">
-          {orderError}
-        </p>
-      )}
-
-      <button type="button" onClick={placeOrder} disabled={submitting}>
-        Finalizar pedido
-      </button>
     </>
   );
 }

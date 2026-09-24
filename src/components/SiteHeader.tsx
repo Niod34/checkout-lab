@@ -29,9 +29,10 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="inner">
         <Link href="/" className="brand">
+          <span className="brand-logo">CL</span>
           Checkout Lab
         </Link>
-        <Link href="/carrinho" data-testid="cart-link">
+        <Link href="/carrinho" className="cart-link" data-testid="cart-link">
           Carrinho
           {count > 0 && (
             <span className="badge" data-testid="cart-count">

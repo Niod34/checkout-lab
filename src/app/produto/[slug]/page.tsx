@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { findProductBySlug } from '@/db';
 import { formatBRL } from '@/lib/money';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { ProductThumb } from '@/components/ProductThumb';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,16 +18,27 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <Link href="/">&larr; Voltar</Link>
-      <h1 data-testid="product-name">{product.name}</h1>
-      <p className="muted">{product.description}</p>
-      <p className="price" data-testid="product-price">
-        {formatBRL(product.priceCents)}
-      </p>
-      <p className="muted" data-testid="product-weight">
-        Peso: {formatKg(product.weightGrams)}
-      </p>
-      <AddToCartButton slug={product.slug} disabled={product.stock === 0} />
+      <Link href="/" className="back-link">
+        &larr; Voltar para os produtos
+      </Link>
+
+      <div className="product-page">
+        <ProductThumb id={product.id} name={product.name} large />
+
+        <div className="stack">
+          <div>
+            <h1 data-testid="product-name">{product.name}</h1>
+            <p className="muted">{product.description}</p>
+          </div>
+          <p className="price" data-testid="product-price">
+            {formatBRL(product.priceCents)}
+          </p>
+          <p className="muted" data-testid="product-weight">
+            Peso: {formatKg(product.weightGrams)}
+          </p>
+          <AddToCartButton slug={product.slug} disabled={product.stock === 0} />
+        </div>
+      </div>
     </>
   );
 }

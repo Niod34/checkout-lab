@@ -13,13 +13,11 @@ export default async function OrderPage({ params }: { params: Promise<{ orderId:
   const { quote } = order;
 
   return (
-    <>
+    <div className="card order-card">
+      <div className="check">✓</div>
       <h1>Pedido confirmado</h1>
-      <p className="alert success" data-testid="order-id">
-        Pedido {order.id}
-      </p>
-      <p className="muted">
-        {order.customer.name} &middot; {order.customer.email}
+      <p className="order-number" data-testid="order-id">
+        Pedido {order.id} · {order.customer.name}
       </p>
 
       <table>
@@ -35,6 +33,7 @@ export default async function OrderPage({ params }: { params: Promise<{ orderId:
       </table>
 
       <div className="totals">
+        <hr className="divider" />
         <div className="row">
           <span>Desconto</span>
           <span data-testid="discount">- {formatBRL(quote.discountCents)}</span>
@@ -49,7 +48,9 @@ export default async function OrderPage({ params }: { params: Promise<{ orderId:
         </div>
       </div>
 
-      <Link href="/">Voltar para a loja</Link>
-    </>
+      <Link href="/" className="button block">
+        Continuar comprando
+      </Link>
+    </div>
   );
 }
